@@ -1,0 +1,2 @@
+1. reference文件夹中是一个参考项目，除了reference文件夹以外的部分是我的项目
+2. 与python有关的命令都需要在前面加个uv run才能正常运行
