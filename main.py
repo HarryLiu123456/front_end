@@ -26,7 +26,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     """返回主页面"""
-    return FileResponse("static/index.html")
+    return FileResponse("templates/index.html")
 
 # API 路由示例
 @app.get("/api/data")
