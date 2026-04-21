@@ -1,0 +1,43 @@
+/**
+ * 菜单界面样式
+ */
+
+/* ============================================
+   第一个界面 - 菜单界面样式
+   ============================================ */
+#menuBox {
+    text-align: center; /* 文字居中 */
+}
+
+/* 游戏标题样式 */
+.game-title {
+    color: #e94560;                     /* 标题颜色 */
+    font-size: 48px;                    /* 字体大小 */
+    margin-bottom: 60px;                /* 标题下边距 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 文字阴影效果 */
+}
+
+/* "开始游戏"按钮样式 */
+#startBtn {
+    /* 渐变背景色 */
+    background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+    color: white;                       /* 文字颜色为白色 */
+    border: none;                       /* 无边框 */
+    padding: 20px 60px;                 /* 内边距：上下20px，左右60px */
+    font-size: 24px;                    /* 字体大小 */
+    border-radius: 50px;                /* 圆角按钮效果 */
+    cursor: pointer;                     /* 鼠标变为手型 */
+    transition: all 0.3s ease;         /* 所有属性0.3秒过渡动画 */
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); /* 按钮阴影 */
+}
+
+/* 按钮悬停效果 */
+#startBtn:hover {
+    transform: translateY(-3px);         /* 向上移动3px */
+    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6); /* 阴影加深 */
+}
+
+/* 按钮点击效果 */
+#startBtn:active {
+    transform: translateY(0);            /* 回到原位 */
+}
