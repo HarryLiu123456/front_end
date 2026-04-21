@@ -1,65 +1,121 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+<!-- 文档字符编码设置为UTF-8，支持中文显示 -->
 <meta charset="UTF-8">
+<!-- 页面标题：中国象棋游戏 -->
 <title>中国象棋 in html5</title>
+<!-- 视口设置，用于移动端响应式布局 -->
 <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+<!-- 引入CSS样式文件 -->
 <link href="css/chess.css" rel="stylesheet" type="text/css">
 <!--[if lt IE 9]>
+<!-- IE9以下浏览器的兼容提示 -->
 <script> alert("对不起，您的浏览器不支持HTML5，请升级浏览器至IE9、firefox或者谷歌浏览器！")</script>
 < ![endif]-->
 </head>
 <body>
+
+<!-- 游戏主区域，包含棋盘画布和操作按钮 -->
 <div id="chessBox" class="chess_box">
+	<!-- 绘制棋盘的Canvas画布元素 -->
 	<canvas id="chess"></canvas>
+	
+	<!-- 音频元素：点击音效 -->
 	<audio src="audio/click.wav" id="clickAudio" preload="auto"></audio>
+	<!-- 音频元素：选中棋子音效 -->
 	<audio src="audio/select.wav" id="selectAudio" preload="auto"></audio>
+	
+	<!-- 底部操作按钮区域 -->
 	<div class="bn_box" id="bnBox">
+		<!-- 重新开始按钮 -->
 		<input type="button" name="restartBtn" id="restartBtn" value="  重新开始  " />
+		<!-- 返回首页按钮 -->
 		<input type="button" name="gohomeBtn" id="gohomeBtn" value="  返回首页  " />
+		<!-- 悔棋按钮 -->
 		<input type="button" name="regretBtn" id="regretBtn" value="  悔   棋  " />
 	</div>
 </div>
+
+<!-- 菜单主界面 -->
 <div class="menu_box" id="menuBox">
-	<div class="menu_init" id="indexBox"><a id="indexDy">人机对弈</a><a id="indexQj">挑战棋局</a><a id="stypeBtn">更换皮肤</a></div>
+	<!-- 主菜单选项 -->
+	<div class="menu_init" id="indexBox">
+		<!-- 人机对弈入口 -->
+		<a id="indexDy">人机对弈</a>
+		<!-- 挑战棋局入口 -->
+		<a id="indexQj">挑战棋局</a>
+		<!-- 更换皮肤按钮 -->
+		<a id="stypeBtn">更换皮肤</a>
+	</div>
+	
+	<!-- 人机对弈子菜单：选择AI难度 -->
 	<div class="menu_dy" id="menuDy">
 		<div class="menu_info">
+			<!-- 返回按钮 -->
 			<div class="menu_fh" id="menuFh"></div>
+			<!-- 菜鸟难度：搜索深度2 -->
 			<label>
 				<input name="depth" type="radio" value="2">
 				菜鸟水平</label>
 			<br />
+			<!-- 中级难度：搜索深度3（默认选中） -->
 			<label>
 				<input name="depth" type="radio" value="3" checked>
 				中级水平</label>
 			<br />
+			<!-- 高手难度：搜索深度4 -->
 			<label>
 				<input name="depth" type="radio" value="4">
 				高手水平</label>
 		</div>
-		<a id="playBtn">开始对弈</a> </div>
+		<!-- 开始对弈按钮 -->
+		<a id="playBtn">开始对弈</a> 
+	</div>
+	
+	<!-- 挑战棋案子菜单：选择特殊棋局 -->
 	<div class="menu_qj" id="menuQj">
 		<div class="menu_info">
+			<!-- 返回按钮 -->
 			<div class="menu_fh" id="menuGb"></div>
+			<!-- 八卦阵法棋局 -->
 			<label>
 				<input name="clasli" type="radio" value="0" checked>
 				八卦阵法</label>
 			<br />
+			<!-- 很二棋局 -->
 			<label>
 				<input name="clasli" type="radio" value="1">
 				很二棋局</label>
 			<br />
+			<!-- 七星会阵棋局 -->
 			<label>
 				<input name="clasli" type="radio" value="2">
 				七星会阵</label>
 		</div>
-		<a id = "clasliBtn">开始挑战</a> </div>
+		<!-- 开始挑战按钮 -->
+		<a id = "clasliBtn">开始挑战</a> 
+	</div>
 </div>
+
+<!-- 按顺序引入JavaScript文件：先加载公共模块，再加载业务逻辑，最后加载数据 -->
+
+<!-- 公共模块：包含棋盘绘制、棋子规则、工具函数等 -->
 <script type="text/javascript" src="js/common.js"></script>
+
+<!-- 游戏控制模块：处理用户交互、游戏状态管理 -->
 <script type="text/javascript" src="js/play.js"></script>
+
+<!-- AI人工智能模块：包含棋局评估、搜索算法、着法生成 -->
 <script type="text/javascript" src="js/AI.js"></script>
+
+<!-- 残局库模块：存储常见开局棋谱，用于AI快速查找 -->
 <script type="text/javascript" src="js/gambit.js"></script>
+
+<!-- 挑战棋局模块：定义特殊棋局布局 -->
 <script type="text/javascript" src="js/clasli.js"></script>
+
+<!-- Cordova移动端框架支持（用于PhoneGap/Cordova应用） -->
 <script type="text/javascript" charset="utf-8" src="js/cordova-2.2.0.js"></script>
 </body>
 </html>
