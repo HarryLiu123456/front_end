@@ -1,102 +1,154 @@
 /**
  * 菜单界面和游戏选择界面样式
+ * 优化版本：使用CSS变量、简化结构、提高可维护性
  */
+
+/* CSS变量定义 - 统一管理颜色和间距 */
+:root {
+    --primary-color: #000000;
+    --bg-color: #ffffff;
+    --border-color: #ccc;
+    --text-muted: #666666;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --transition-speed: 0.3s;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 40px;
+    --spacing-xl: 60px;
+}
+
+/* ============================================
+   通用按钮样式 - 所有按钮的基础样式
+   ============================================ */
+.btn {
+    background: var(--bg-color);
+    color: var(--primary-color);
+    border: 2px solid var(--border-color);
+    padding: var(--spacing-md) calc(var(--spacing-md) * 3);
+    font-size: 20px;
+    font-family: inherit;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow-medium);
+    border-color: #999;
+}
+
+.btn:active {
+    transform: translateY(0);
+}
 
 /* ============================================
    第一个界面 - 菜单界面样式
    ============================================ */
-
-/* 菜单界面容器 */
-#menuBox {
-    text-align: center; /* 文字居中 */
+.menu-box {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
 }
 
-/* 游戏标题样式 */
-.game-title {
-    color: #e94560;                     /* 标题颜色 */
-    font-size: 48px;                    /* 字体大小 */
-    margin-bottom: 60px;                /* 标题下边距 */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 文字阴影效果 */
+.menu-box__title {
+    color: var(--primary-color);
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: var(--spacing-xl);
 }
 
-/* "开始游戏"按钮样式 */
-#startBtn {
-    background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
-    color: white;
-    border: none;
-    padding: 20px 60px;
+/* 开始游戏按钮 */
+.menu-box__start-btn {
     font-size: 24px;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-}
-
-/* 按钮悬停效果 */
-#startBtn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
-}
-
-/* 按钮点击效果 */
-#startBtn:active {
-    transform: translateY(0);
+    box-shadow: 0 4px 15px var(--shadow-light);
 }
 
 /* ============================================
    第二个界面 - 选择颜色界面样式
    ============================================ */
-
-/* 选择颜色界面容器 */
-#gameBox {
-    display: none;                      /* 默认隐藏 */
-    text-align: center;                 /* 文字居中 */
-    color: white;                       /* 文字颜色 */
+.color-selection {
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
 }
 
-/* 界面标题样式 */
-#gameBox h2 {
-    font-size: 32px;                    /* 字体大小 */
-    margin-bottom: 40px;                /* 下边距 */
+.color-selection__title {
+    font-size: 48px;                    /* 与第一个界面标题大小一致 */
+    font-weight: bold;                  /* 加粗标题 */
+    margin-bottom: var(--spacing-xl);  /* 与第一个界面一致的下边距 */
+    color: var(--primary-color);         /* 黑色文字 */
 }
 
-/* 颜色选择按钮容器 */
-.color-choices {
-    display: flex;                      /* 弹性布局 */
-    gap: 40px;                          /* 按钮之间间距40px */
-    justify-content: center;             /* 水平居中 */
+.color-selection__options {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
 }
 
-/* 通用按钮样式 */
+/* 颜色选择按钮 - 与第一个界面按钮样式一致 */
 .color-btn {
-    padding: 20px 40px;                 /* 内边距 */
-    font-size: 20px;                    /* 字体大小 */
-    border: none;                       /* 无边框 */
-    border-radius: 10px;               /* 圆角 */
-    cursor: pointer;                    /* 手型光标 */
-    transition: all 0.3s ease;          /* 过渡动画 */
-    font-family: inherit;               /* 继承字体 */
+    background: var(--bg-color);
+    color: var(--primary-color);
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    padding: var(--spacing-md) calc(var(--spacing-md) * 3);
+    font-size: 24px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+    box-shadow: 0 4px 15px var(--shadow-light);
 }
 
-/* 红方按钮样式 */
-.red-btn {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-    color: white;
-}
-
-/* 黑方按钮样式 */
-.black-btn {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-}
-
-/* 按钮悬停效果 */
+/* 按钮悬停效果 - 与第一个界面一致 */
 .color-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px var(--shadow-medium);
+    border-color: #999;
 }
 
-/* 按钮点击效果 */
+/* 按钮点击效果 - 与第一个界面一致 */
 .color-btn:active {
     transform: translateY(0);
+}
+
+/* ============================================
+   动画效果
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+@media (max-width: 768px) {
+    .menu-box__title,
+    .color-selection__title {
+        font-size: 32px;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .color-selection__options {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+    
+    .btn,
+    .color-btn {
+        padding: var(--spacing-sm) calc(var(--spacing-sm) * 2);
+        font-size: 16px;
+    }
 }

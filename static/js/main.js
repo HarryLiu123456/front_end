@@ -1,4 +1,4 @@
-/** 主入口文件 - 游戏初始化和交互绑定 */
+/** 主入口文件 - 游戏初始化和交互绑定 (优化版) */
 import { Game } from './jss/game.js';  // 导入游戏类
 import { Config } from './config.js';  // 导入游戏配置
 
@@ -7,9 +7,9 @@ let game = null;           // 游戏实例
 let playerCamp = '红方';   // 玩家阵营（"红方"/"黑方"）
 let chessCanvas = null;    // Canvas元素
 
-// 页面元素引用
+// 页面元素引用 - 使用类名选择器
 let menuBox = null;        // 菜单界面容器
-let gameBox = null;        // 选择颜色界面容器
+let colorSelection = null; // 选择颜色界面容器
 let chessBoardBox = null;  // 棋盘界面容器
 
 /** 初始化游戏主入口 */
@@ -17,46 +17,30 @@ function initMain() {
     console.log('初始化游戏...');
     
     // 获取页面元素
-    menuBox = document.getElementById('menuBox');
-    gameBox = document.getElementById('gameBox');
-    chessBoardBox = document.getElementById('chessBoardBox');
+    menuBox = document.querySelector('.menu-box');
+    colorSelection = document.querySelector('.color-selection');
+    chessBoardBox = document.querySelector('.chess-board-box');
     chessCanvas = document.getElementById('chessCanvas');
     
     // 检查元素是否存在
-    console.log('menuBox:', menuBox);
-    console.log('gameBox:', gameBox);
-    console.log('chessBoardBox:', chessBoardBox);
-    
-    if (!menuBox || !gameBox || !chessBoardBox) {
+    if (!menuBox || !colorSelection || !chessBoardBox) {
         console.error('无法找到界面元素！');
         return;
     }
     
     // 初始状态：只显示菜单界面
-    menuBox.style.display = 'block';
-    gameBox.style.display = 'none';
-    chessBoardBox.style.display = 'none';
+    showScreen('menu');
     
     // 绑定开始游戏按钮
-    const startBtn = document.getElementById('startBtn');
-    console.log('startBtn:', startBtn);
+    const startBtn = document.querySelector('.menu-box__start-btn');
     if (startBtn) {
-        startBtn.addEventListener('click', function() {
-            console.log('开始游戏按钮被点击');
-            menuBox.style.display = 'none';
-            gameBox.style.display = 'block';
-            console.log('gameBox display:', gameBox.style.display);
-        });
-    } else {
-        console.error('无法找到开始按钮！');
+        startBtn.addEventListener('click', () => showScreen('color'));
     }
     
     // 绑定红方按钮
     const redBtn = document.getElementById('redBtn');
-    console.log('redBtn:', redBtn);
     if (redBtn) {
-        redBtn.addEventListener('click', function() {
-            console.log('红方按钮被点击');
+        redBtn.addEventListener('click', () => {
             playerCamp = '红方';
             startGame();
         });
@@ -64,10 +48,8 @@ function initMain() {
     
     // 绑定黑方按钮
     const blackBtn = document.getElementById('blackBtn');
-    console.log('blackBtn:', blackBtn);
     if (blackBtn) {
-        blackBtn.addEventListener('click', function() {
-            console.log('黑方按钮被点击');
+        blackBtn.addEventListener('click', () => {
             playerCamp = '黑方';
             startGame();
         });
@@ -76,13 +58,34 @@ function initMain() {
     console.log('初始化完成');
 }
 
+/** 切换界面显示
+ * @param {string} screen - 界面名称 ('menu' | 'color' | 'board')
+ */
+function showScreen(screen) {
+    // 隐藏所有界面
+    menuBox.style.display = 'none';
+    colorSelection.style.display = 'none';
+    chessBoardBox.style.display = 'none';
+    
+    // 根据参数显示对应界面
+    switch (screen) {
+        case 'menu':
+            menuBox.style.display = 'block';
+            break;
+        case 'color':
+            colorSelection.style.display = 'block';
+            break;
+        case 'board':
+            chessBoardBox.style.display = 'block';
+            break;
+    }
+}
+
 /** 开始游戏 - 切换到棋盘界面并绘制棋盘 */
 async function startGame() {
     try {
-        // 隐藏选择颜色界面
-        gameBox.style.display = 'none';
-        // 显示棋盘界面
-        chessBoardBox.style.display = 'block';
+        // 隐藏选择颜色界面，显示棋盘界面
+        showScreen('board');
         
         // 创建游戏实例
         game = new Game();
@@ -113,23 +116,24 @@ function handleCanvasClick(event) {
     const pixelX = (event.clientX - rect.left) * scaleX;
     const pixelY = (event.clientY - rect.top) * scaleY;
     
-    // 使用ChessBoard的getPieceAtPixel方法获取被点击的棋子
-    const clickedPiece = game.board.getPieceAtPixel(pixelX, pixelY);
+    console.log('点击像素坐标:', pixelX, pixelY);
     
-    if (clickedPiece) {
-        // 如果有棋子被点击，设置选中状态
-        clickedPiece.isSelected = true;
-        console.log('点击了棋子:', clickedPiece.toString());
-        game.render();  // 重绘以显示选中效果
-    } else {
-        // 点击空白区域，取消所有选中
-        const pieces = game.board.grid.flat().filter(p => p && p.isAlive);
-        pieces.forEach(p => p.isSelected = false);
-        game.render();
+    // 将像素坐标转换为棋盘坐标
+    const boardPos = game.board.getBoardPos(pixelX, pixelY);
+    console.log('棋盘坐标:', boardPos.x, boardPos.y);
+    
+    // 验证坐标是否在有效范围内
+    if (boardPos.x < 0 || boardPos.x > 8 || boardPos.y < 0 || boardPos.y > 9) {
+        console.log('点击超出棋盘范围');
+        return;
     }
     
-    // 更新UI显示
-    updateUI();
+    // 调用Game类的handleClick方法处理点击逻辑
+    const result = game.handleClick(boardPos.x, boardPos.y);
+    console.log('点击处理结果:', result);
+    
+    // 处理游戏结果
+    handleGameResult(result);
 }
 
 /** 处理游戏结果 */
@@ -138,36 +142,20 @@ function handleGameResult(result) {
     
     switch (result.action) {
         case 'move':
+            console.log(`棋子移动: (${result.fromX}, ${result.fromY}) -> (${result.toX}, ${result.toY})`);
+            if (result.captured?.piece) {
+                console.log(`吃子: ${result.captured.piece.name}`);
+            }
             if (result.gameResult) {
-                // 游戏结束，显示胜利信息
                 alert(`${result.gameResult.winner}获胜！`);
             }
             break;
         case 'select':
-            // 可以添加选中效果反馈
+            console.log('选中棋子:', result.piece?.name);
             break;
         case 'deselect':
-            // 可以添加取消选中反馈
+            console.log('取消选中');
             break;
-    }
-}
-
-/** 更新UI显示 */
-function updateUI() {
-    if (!game) return;
-    
-    const status = game.getStatus();
-    
-    // 更新当前回合显示
-    const turnDisplay = document.getElementById('turnDisplay');
-    if (turnDisplay) {
-        turnDisplay.textContent = status.isPlay ? `当前回合: ${status.currentCampName}` : '游戏未开始';
-    }
-    
-    // 更新步数显示
-    const moveCountDisplay = document.getElementById('moveCountDisplay');
-    if (moveCountDisplay) {
-        moveCountDisplay.textContent = `步数: ${status.moveCount}`;
     }
 }
 

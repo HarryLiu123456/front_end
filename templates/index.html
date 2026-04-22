@@ -6,7 +6,7 @@
     <!-- 视口设置，用于移动端响应式布局 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 页面标题：中国象棋游戏 -->
-    <title>中国象棋</title>
+    <title>基于AlphaZero的中国象棋系统</title>
     
     <!-- 引入外部CSS样式文件 -->
     <link rel="stylesheet" href="static/css/reset.css">  <!-- 全局样式重置 -->
@@ -18,41 +18,34 @@
     <!-- ============================================
          第一个界面 - 菜单界面
          ============================================ -->
-    <div id="menuBox">
+    <div class="menu-box">
         <!-- 游戏标题 -->
-        <h1 class="game-title">🎮 中国象棋</h1>
+        <h1 class="menu-box__title">基于AlphaZero的中国象棋系统</h1>
         <!-- 开始游戏按钮 -->
-        <button id="startBtn">开始游戏</button>
+        <button class="btn menu-box__start-btn">开始游戏</button>
     </div>
     
     <!-- ============================================
          第二个界面 - 选择棋子颜色界面
          ============================================ -->
-    <div id="gameBox">
+    <div class="color-selection">
         <!-- 提示文字 -->
-        <h2>选择您的棋子颜色</h2>
+        <h2 class="color-selection__title">选择您的棋子颜色</h2>
         <!-- 颜色选择按钮容器 -->
-        <div class="color-choices">
+        <div class="color-selection__options">
             <!-- 红方按钮：先手方 -->
-            <button class="color-btn red-btn" id="redBtn">🔴 红方（先手）</button>
+            <button class="color-btn" id="redBtn">红方（先手）</button>
             <!-- 黑方按钮：后手方 -->
-            <button class="color-btn black-btn" id="blackBtn">⚫ 黑方（后手）</button>
+            <button class="color-btn" id="blackBtn">黑方（后手）</button>
         </div>
     </div>
     
     <!-- ============================================
          第三个界面 - 棋盘游戏界面
          ============================================ -->
-    <div id="chessBoardBox">
-        <!-- 显示玩家选择的颜色 -->
-        <h2 id="playerColorTitle">棋盘界面</h2>
+    <div class="chess-board-box">
         <!-- 棋盘Canvas画布 -->
         <canvas id="chessCanvas"></canvas>
-        <!-- 游戏状态显示 -->
-        <div id="gameStatus">
-            <span id="turnDisplay">游戏未开始</span>
-            <span id="moveCountDisplay">步数: 0</span>
-        </div>
     </div>
     
     <!-- ============================================

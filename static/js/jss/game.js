@@ -130,8 +130,11 @@ export class Game {
         return { action: 'none' };
     }
 
-    // 选中棋子
+    // 选中棋子 - 先清除其他棋子的选中状态
     selectPiece(piece) {
+        // 清除所有棋子的选中状态
+        this.clearAllSelections();
+        // 选中当前棋子
         this.selectedPiece = piece;
         piece.select();
         this.legalMoves = piece.getLegalMoves(this.board.grid, this.board);
@@ -140,10 +143,19 @@ export class Game {
 
     // 取消选中棋子
     deselectPiece() {
-        this.selectedPiece?.deselect();
+        this.clearAllSelections();
         this.selectedPiece = null;
         this.legalMoves = [];
         this.render();  // 取消选中后重绘
+    }
+
+    // 清除所有棋子的选中状态
+    clearAllSelections() {
+        this.board.grid.flat().forEach(p => {
+            if (p && p.isSelected) {
+                p.deselect();
+            }
+        });
     }
 
     // 执行移动
