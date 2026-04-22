@@ -1,22 +1,25 @@
 /**
  * 游戏配置
  */
-const GameConfig = {
+export const Config = {
+    CANVAS_SIZE: { WIDTH: 1000, HEIGHT: 1000 },  // 画布大小
+    PIECE_SIZE: { WIDTH: 75, HEIGHT: 75 },      // 棋子显示大小
+    CHESSBOARD_SIZE: { WIDTH: 650, HEIGHT: 700 }, // 棋盘图片大小
+    START_X: 20,           // 棋盘起始X坐标
+    START_Y: 17,           // 棋盘起始Y坐标
+    GRID_SIZE: {WIDTH: 76, HEIGHT: 73},        // 网格大小
+    INIT_FEN: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',  // 初始FEN
     IMAGES: {
-        // 棋盘图片大小：宽度1400，高度1500
-        BOARD_SIZE: { WIDTH: 1400, HEIGHT: 1500 },
-        // 棋子大小：宽度800，高度800（所有棋子大小相同）
-        PIECE_SIZE: { WIDTH: 800, HEIGHT: 800 },
-        // 棋盘位置配置：左下角(0,0)位置的像素坐标，以及每格像素大小
-        BOARD_POSITION: { START_X: 94, START_Y: 1396, GRID_SIZE: 151 }
-    },
-    // 初始棋盘FEN格式字符串（中国象棋开局状态）
-    // 格式说明：r=红车 n=红马 b=红相 a=红仕 k=帅 c=红炮 p=红兵
-    //          R=黑车 N=黑马 B=黑象 A=黑士 K=将 C=黑炮 P=黑卒
-    //          数字表示空位数量
-    INITIAL_FEN: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1'
+        BASE_PATH: 'static/imgs/',
+        PIECE_SIZE: { WIDTH: 800, HEIGHT: 800 },  // 棋子图片原始大小
+        PIECE_LIST: [
+            'red_king.png', 'black_king.png',   // 将/帅
+            'red_advisor.png', 'black_advisor.png',   // 士
+            'red_bishop.png', 'black_bishop.png',   // 相/象
+            'red_knight.png', 'black_knight.png',   // 马
+            'red_rook.png', 'black_rook.png',   // 车
+            'red_cannon.png', 'black_cannon.png',   // 炮
+            'red_pawn.png', 'black_pawn.png'    // 兵/卒
+        ],
+    }
 };
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = GameConfig;
-}

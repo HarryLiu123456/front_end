@@ -1,39 +1,33 @@
-/** 相/象 - 田字移动，有塞象眼限制 */
-class Bishop extends Piece {
-    constructor(x, y, camp) {
-        super(x, y, camp === 1 ? "相" : "象", camp);
-        this.imageRed = Piece.IMAGE_PATH + 'b.png';
-        this.imageBlack = Piece.IMAGE_PATH + 'bb.png';
+// 相/象 - 田字移动，塞象眼限制，不过河
+import { Piece } from './piece.js';
+import { Config } from '../config.js';
+
+export class Bishop extends Piece {
+    constructor(x, y, camp, imageCache = {}) {
+        const { BASE_PATH } = Config.IMAGES;
+        const prefix = camp === '红方' ? 'red_bishop' : 'black_bishop';
+        const imagePath = BASE_PATH + prefix + '.png';
+        const FENCode = camp === '红方' ? 'B' : 'b';
+        super(x, y, camp, camp === '红方' ? '相' : '象', FENCode, imagePath, imageCache);
     }
 
-    getImagePath() { return this.camp === 1 ? this.imageRed : this.imageBlack; }
-
-    getLegalMoves(map, mans) {
+    getLegalMoves(map, board) {
         const moves = [];
-        const offsets = [[2, 2], [-2, 2], [2, -2], [-2, -2]];
-        const legOffsets = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
-
-        for (let i = 0; i < 4; i++) {
-            const [dx, dy] = offsets[i];
-            const [lx, ly] = legOffsets[i];
-            const nx = this.x + dx, ny = this.y + dy;
-            const lx2 = this.x + lx, ly2 = this.y + ly;
-
-            if (this.isInBounds(nx, ny) && !this.isBlocked(lx2, ly2, map) && this.canGo(nx, ny, map, mans)) {
-                moves.push([nx, ny]);
-            }
+        const positions = this.camp === '红方'
+            ? [[6, 7], [6, 5], [0, 7], [0, 5], [8, 7], [8, 5], [2, 9], [2, 5]]  // 红相
+            : [[6, 2], [6, 4], [0, 2], [0, 4], [8, 2], [8, 4], [2, 0], [2, 4]]; // 黑象
+        for (const [nx, ny] of positions) {
+            if (this.canGo(nx, ny, map, board)) moves.push([nx, ny]);
         }
         return moves;
     }
 
-    isInBounds(x, y) {
-        if (this.camp === 1) return x >= 0 && x <= 8 && y >= 5 && y <= 9;
-        return x >= 0 && x <= 8 && y >= 0 && y <= 4;
-    }
-
-    isBlocked(x, y, map) { return map[y] && map[y][x]; }
-
-    canGo(x, y, map, mans) {
-        return !map[y] || !map[y][x] || mans[map[y][x]].camp !== this.camp;
+    // 检查塞象眼
+    canGo(x, y, map, board) {
+        const midX = (this.x + x) / 2;
+        const midY = (this.y + y) / 2;
+        if (board.getPieceAt(midX, midY)) return false;
+        const piece = board.getPieceAt(x, y);
+        return !piece || piece.camp !== this.camp;
     }
 }

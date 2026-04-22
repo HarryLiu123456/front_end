@@ -1,10 +1,12 @@
 /**
- * 菜单界面样式
+ * 菜单界面和游戏选择界面样式
  */
 
 /* ============================================
    第一个界面 - 菜单界面样式
    ============================================ */
+
+/* 菜单界面容器 */
 #menuBox {
     text-align: center; /* 文字居中 */
 }
@@ -19,25 +21,82 @@
 
 /* "开始游戏"按钮样式 */
 #startBtn {
-    /* 渐变背景色 */
     background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
-    color: white;                       /* 文字颜色为白色 */
-    border: none;                       /* 无边框 */
-    padding: 20px 60px;                 /* 内边距：上下20px，左右60px */
-    font-size: 24px;                    /* 字体大小 */
-    border-radius: 50px;                /* 圆角按钮效果 */
-    cursor: pointer;                     /* 鼠标变为手型 */
-    transition: all 0.3s ease;         /* 所有属性0.3秒过渡动画 */
-    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); /* 按钮阴影 */
+    color: white;
+    border: none;
+    padding: 20px 60px;
+    font-size: 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
 }
 
 /* 按钮悬停效果 */
 #startBtn:hover {
-    transform: translateY(-3px);         /* 向上移动3px */
-    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6); /* 阴影加深 */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
 }
 
 /* 按钮点击效果 */
 #startBtn:active {
-    transform: translateY(0);            /* 回到原位 */
+    transform: translateY(0);
+}
+
+/* ============================================
+   第二个界面 - 选择颜色界面样式
+   ============================================ */
+
+/* 选择颜色界面容器 */
+#gameBox {
+    display: none;                      /* 默认隐藏 */
+    text-align: center;                 /* 文字居中 */
+    color: white;                       /* 文字颜色 */
+}
+
+/* 界面标题样式 */
+#gameBox h2 {
+    font-size: 32px;                    /* 字体大小 */
+    margin-bottom: 40px;                /* 下边距 */
+}
+
+/* 颜色选择按钮容器 */
+.color-choices {
+    display: flex;                      /* 弹性布局 */
+    gap: 40px;                          /* 按钮之间间距40px */
+    justify-content: center;             /* 水平居中 */
+}
+
+/* 通用按钮样式 */
+.color-btn {
+    padding: 20px 40px;                 /* 内边距 */
+    font-size: 20px;                    /* 字体大小 */
+    border: none;                       /* 无边框 */
+    border-radius: 10px;               /* 圆角 */
+    cursor: pointer;                    /* 手型光标 */
+    transition: all 0.3s ease;          /* 过渡动画 */
+    font-family: inherit;               /* 继承字体 */
+}
+
+/* 红方按钮样式 */
+.red-btn {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    color: white;
+}
+
+/* 黑方按钮样式 */
+.black-btn {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+}
+
+/* 按钮悬停效果 */
+.color-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 按钮点击效果 */
+.color-btn:active {
+    transform: translateY(0);
 }

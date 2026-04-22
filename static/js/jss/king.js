@@ -1,52 +1,44 @@
-/** 将/帅 - 直线一步，限九宫内 */
-class King extends Piece {
-    constructor(x, y, camp) {
-        super(x, y, camp === 1 ? "帅" : "将", camp);
-        this.imageRed = Piece.IMAGE_PATH + 'k.png';
-        this.imageBlack = Piece.IMAGE_PATH + 'kb.png';
+// 将/帅 - 直线一步移动，限九宫内
+import { Piece } from './piece.js';
+import { Config } from '../config.js';
+
+export class King extends Piece {
+    constructor(x, y, camp, imageCache = {}) {
+        const { BASE_PATH } = Config.IMAGES;
+        const prefix = camp === '红方' ? 'red_king' : 'black_king';
+        const imagePath = BASE_PATH + prefix + '.png';
+        const FENCode = camp === '红方' ? 'K' : 'k';
+        super(x, y, camp, camp === '红方' ? '帅' : '将', FENCode, imagePath, imageCache);
     }
 
-    getImagePath() { return this.camp === 1 ? this.imageRed : this.imageBlack; }
-
-    getLegalMoves(map, mans) {
+    getLegalMoves(map, board) {
         const moves = [];
-        const my = this.camp;
+        const [yMin, yMax] = this.camp === '红方' ? [7, 9] : [0, 2]; // 九宫边界
 
-        if (my === 1) {
-            // 红帅 - 九宫(3-5列, 7-9行)
-            if (this.y + 1 <= 9 && this.canGo(this.x, this.y + 1, map, mans)) moves.push([this.x, this.y + 1]);
-            if (this.y - 1 >= 7 && this.canGo(this.x, this.y - 1, map, mans)) moves.push([this.x, this.y - 1]);
-            if (this.x + 1 <= 5 && this.canGo(this.x + 1, this.y, map, mans)) moves.push([this.x + 1, this.y]);
-            if (this.x - 1 >= 3 && this.canGo(this.x - 1, this.y, map, mans)) moves.push([this.x - 1, this.y]);
-            // 将帅对面
-            const enemy = mans['K0'];
-            if (enemy && enemy.isAlive && this.x === enemy.x) {
+        // 上下左右移动
+        if (this.y + 1 <= yMax && this.canGo(this.x, this.y + 1, map, board)) moves.push([this.x, this.y + 1]);
+        if (this.y - 1 >= yMin && this.canGo(this.x, this.y - 1, map, board)) moves.push([this.x, this.y - 1]);
+        if (this.x + 1 <= 5 && this.canGo(this.x + 1, this.y, map, board)) moves.push([this.x + 1, this.y]);
+        if (this.x - 1 >= 3 && this.canGo(this.x - 1, this.y, map, board)) moves.push([this.x - 1, this.y]);
+
+        // 将帅对面
+        const enemy = this.camp === '红方' ? '黑方' : '红方';
+        for (const p of board.getPiecesByCamp(enemy)) {
+            if (p instanceof King && p.isAlive && this.x === p.x) {
                 let blocked = false;
-                for (let y = this.y + 1; y < enemy.y; y++) {
+                const [startY, endY] = this.camp === '红方' ? [this.y + 1, p.y] : [p.y + 1, this.y];
+                for (let y = startY; y < endY; y++) {
                     if (map[y] && map[y][this.x]) { blocked = true; break; }
                 }
-                if (!blocked) moves.push([enemy.x, enemy.y]);
-            }
-        } else {
-            // 黑将 - 九宫(3-5列, 0-2行)
-            if (this.y + 1 <= 2 && this.canGo(this.x, this.y + 1, map, mans)) moves.push([this.x, this.y + 1]);
-            if (this.y - 1 >= 0 && this.canGo(this.x, this.y - 1, map, mans)) moves.push([this.x, this.y - 1]);
-            if (this.x + 1 <= 5 && this.canGo(this.x + 1, this.y, map, mans)) moves.push([this.x + 1, this.y]);
-            if (this.x - 1 >= 3 && this.canGo(this.x - 1, this.y, map, mans)) moves.push([this.x - 1, this.y]);
-            // 将帅对面
-            const enemy = mans['k0'];
-            if (enemy && enemy.isAlive && this.x === enemy.x) {
-                let blocked = false;
-                for (let y = enemy.y + 1; y < this.y; y++) {
-                    if (map[y] && map[y][this.x]) { blocked = true; break; }
-                }
-                if (!blocked) moves.push([enemy.x, enemy.y]);
+                if (!blocked) moves.push([p.x, p.y]);
+                break;
             }
         }
         return moves;
     }
 
-    canGo(x, y, map, mans) {
-        return !map[y] || !map[y][x] || mans[map[y][x]].camp !== this.camp;
+    canGo(x, y, map, board) {
+        const piece = board.getPieceAt(x, y);
+        return !piece || piece.camp !== this.camp;
     }
 }

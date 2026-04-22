@@ -11,9 +11,8 @@
     <!-- 引入外部CSS样式文件 -->
     <link rel="stylesheet" href="static/css/reset.css">  <!-- 全局样式重置 -->
     <link rel="stylesheet" href="static/css/base.css">  <!-- 页面基础样式 -->
-    <link rel="stylesheet" href="static/css/menu.css">   <!-- 菜单界面样式 -->
-    <link rel="stylesheet" href="static/css/game.css">   <!-- 游戏选择界面样式 -->
-    <link rel="stylesheet" href="static/css/chessboard.css"> <!-- 棋盘界面样式 -->
+    <link rel="stylesheet" href="static/css/menu.css">   <!-- 菜单界面和游戏选择界面样式 -->
+    <link rel="stylesheet" href="static/css/canvas.css"> <!-- Canvas画布样式 -->
 </head>
 <body>
     <!-- ============================================
@@ -48,162 +47,17 @@
         <!-- 显示玩家选择的颜色 -->
         <h2 id="playerColorTitle">棋盘界面</h2>
         <!-- 棋盘Canvas画布 -->
-        <canvas id="chessCanvas" width="1400" height="1500"></canvas>
+        <canvas id="chessCanvas"></canvas>
+        <!-- 游戏状态显示 -->
+        <div id="gameStatus">
+            <span id="turnDisplay">游戏未开始</span>
+            <span id="moveCountDisplay">步数: 0</span>
+        </div>
     </div>
     
     <!-- ============================================
-         引入JavaScript模块
+         ES6模块方式引入JavaScript
          ============================================ -->
-    <script src="static/js/config.js"></script>           <!-- 游戏配置 -->
-    <script src="static/js/jss/chessman.js"></script>     <!-- 棋子基类 -->
-    <script src="static/js/jss/king.js"></script>         <!-- 将/帅 -->
-    <script src="static/js/jss/advisor.js"></script>      <!-- 士 -->
-    <script src="static/js/jss/bishop.js"></script>       <!-- 相/象 -->
-    <script src="static/js/jss/knight.js"></script>       <!-- 马 -->
-    <script src="static/js/jss/rook.js"></script>         <!-- 车 -->
-    <script src="static/js/jss/cannon.js"></script>       <!-- 炮 -->
-    <script src="static/js/jss/pawn.js"></script>         <!-- 兵/卒 -->
-    <script src="static/js/jss/board.js"></script>        <!-- 棋盘类 -->
-    <script src="static/js/jss/game.js"></script>         <!-- 游戏控制类 -->
-    
-    <!-- ============================================
-         游戏逻辑脚本
-         ============================================ -->
-    <script>
-        // ============================================
-        // 游戏全局变量
-        // ============================================
-        let game = null;           // 游戏实例
-        let playerCamp = 1;         // 玩家阵营（1红方，-1黑方）
-        let canvas, ctx;           // Canvas元素和上下文
-
-        // ============================================
-        // 获取页面元素
-        // ============================================
-        const menuBox = document.getElementById('menuBox');           // 菜单界面容器
-        const gameBox = document.getElementById('gameBox');            // 选择颜色界面容器
-        const chessBoardBox = document.getElementById('chessBoardBox'); // 棋盘界面容器
-        const playerColorTitle = document.getElementById('playerColorTitle'); // 棋盘界面标题
-        const startBtn = document.getElementById('startBtn');         // 开始游戏按钮
-        
-        // ============================================
-        // 初始化游戏
-        // ============================================
-        async function initGame() {
-            // 获取Canvas元素
-            canvas = document.getElementById('chessCanvas');
-            ctx = canvas.getContext('2d');
-            
-            // 预加载所有棋子图片
-            await ChessMan.preloadAllImages();
-            
-            // 创建游戏实例
-            game = new Game();
-            game.isPlay = true;
-            
-            // 绘制初始棋盘
-            render();
-        }
-
-        // ============================================
-        // 渲染棋盘和棋子
-        // ============================================
-        function render() {
-            // 清空画布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 绘制棋盘背景
-            ChessMan.drawBoard(ctx, canvas);
-            
-            // 绘制所有棋子
-            for (const key in game.board.pieces) {
-                const piece = game.board.pieces[key];
-                piece.draw(ctx);
-            }
-        }
-
-        // ============================================
-        // Canvas点击事件处理
-        // ============================================
-        function handleCanvasClick(event) {
-            if (!game || !game.isPlay) return;
-            
-            // 获取点击位置的像素坐标
-            const rect = canvas.getBoundingClientRect();
-            const pixelX = event.clientX - rect.left;
-            const pixelY = event.clientY - rect.top;
-            
-            // 将像素坐标转换为网格坐标
-            const config = GameConfig.IMAGES.BOARD_POSITION;
-            const gridX = Math.round((pixelX - config.START_X) / config.GRID_SIZE);
-            const gridY = Math.round((pixelY - config.START_Y) / config.GRID_SIZE);
-            
-            // 验证坐标范围
-            if (gridX < 0 || gridX > 8 || gridY < 0 || gridY > 9) return;
-            
-            // 处理游戏点击
-            const result = game.handleClick(gridX, gridY);
-            
-            // 重新渲染
-            render();
-        }
-
-        // ============================================
-        // 事件监听：开始游戏按钮
-        // ============================================
-        startBtn.addEventListener('click', function() {
-            // 隐藏菜单界面
-            menuBox.style.display = 'none';
-            // 显示选择颜色界面
-            gameBox.style.display = 'block';
-        });
-        
-        // ============================================
-        // 获取红方和黑方按钮
-        // ============================================
-        const redBtn = document.getElementById('redBtn');   // 红方按钮
-        const blackBtn = document.getElementById('blackBtn'); // 黑方按钮
-        
-        // ============================================
-        // 事件监听：红方按钮点击
-        // ============================================
-        redBtn.addEventListener('click', async function() {
-            // 设置玩家阵营为红方
-            playerCamp = 1;
-            
-            // 隐藏选择颜色界面
-            gameBox.style.display = 'none';
-            // 显示棋盘界面
-            chessBoardBox.style.display = 'block';
-            // 更新标题，显示玩家选择了红方
-            playerColorTitle.textContent = '您选择了红方（先手）';
-            
-            // 初始化游戏
-            await initGame();
-        });
-        
-        // ============================================
-        // 事件监听：黑方按钮点击
-        // ============================================
-        blackBtn.addEventListener('click', async function() {
-            // 设置玩家阵营为黑方
-            playerCamp = -1;
-            
-            // 隐藏选择颜色界面
-            gameBox.style.display = 'none';
-            // 显示棋盘界面
-            chessBoardBox.style.display = 'block';
-            // 更新标题，显示玩家选择了黑方
-            playerColorTitle.textContent = '您选择了黑方（后手）';
-            
-            // 初始化游戏
-            await initGame();
-        });
-
-        // ============================================
-        // Canvas点击事件绑定
-        // ============================================
-        document.getElementById('chessCanvas').addEventListener('click', handleCanvasClick);
-    </script>
+    <script type="module" src="static/js/main.js"></script>
 </body>
 </html>

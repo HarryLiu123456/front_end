@@ -1,49 +1,43 @@
-/** 车 - 横竖方向任意步数，不能越子 */
-class Rook extends Piece {
-    constructor(x, y, camp) {
-        super(x, y, "车", camp);
-        this.imageRed = Piece.IMAGE_PATH + 'c.png';
-        this.imageBlack = Piece.IMAGE_PATH + 'cb.png';
+// 车 - 横竖直线移动，不能越子
+import { Piece } from './piece.js';
+import { Config } from '../config.js';
+
+export class Rook extends Piece {
+    constructor(x, y, camp, imageCache = {}) {
+        const { BASE_PATH } = Config.IMAGES;
+        const prefix = camp === '红方' ? 'red_rook' : 'black_rook';
+        const imagePath = BASE_PATH + prefix + '.png';
+        const FENCode = camp === '红方' ? 'R' : 'r';
+        super(x, y, camp, '车', FENCode, imagePath, imageCache);
     }
 
-    getImagePath() { return this.camp === 1 ? this.imageRed : this.imageBlack; }
-
-    getLegalMoves(map, mans) {
+    getLegalMoves(map, board) {
         const moves = [];
-        const my = this.camp;
+        const directions = [[0, -1], [0, 1], [-1, 0], [1, 0]];
 
-        // 左
-        for (let i = this.x - 1; i >= 0; i--) {
-            if (map[this.y][i]) {
-                if (mans[map[this.y][i]].camp !== my) moves.push([i, this.y]);
-                break;
+        for (const [dx, dy] of directions) {
+            for (let i = 1; i < 10; i++) {
+                const nx = this.x + dx * i;
+                const ny = this.y + dy * i;
+                if (!this.isValidPos(nx, ny)) break;
+                const piece = board.getPieceAt(nx, ny);
+                if (this.canGo(nx, ny, map, board)) {
+                    moves.push([nx, ny]);
+                    if (piece) break; // 遇子停止
+                } else {
+                    break;
+                }
             }
-            moves.push([i, this.y]);
-        }
-        // 右
-        for (let i = this.x + 1; i <= 8; i++) {
-            if (map[this.y][i]) {
-                if (mans[map[this.y][i]].camp !== my) moves.push([i, this.y]);
-                break;
-            }
-            moves.push([i, this.y]);
-        }
-        // 上
-        for (let i = this.y - 1; i >= 0; i--) {
-            if (map[i][this.x]) {
-                if (mans[map[i][this.x]].camp !== my) moves.push([this.x, i]);
-                break;
-            }
-            moves.push([this.x, i]);
-        }
-        // 下
-        for (let i = this.y + 1; i <= 9; i++) {
-            if (map[i][this.x]) {
-                if (mans[map[i][this.x]].camp !== my) moves.push([this.x, i]);
-                break;
-            }
-            moves.push([this.x, i]);
         }
         return moves;
+    }
+
+    canGo(x, y, map, board) {
+        const piece = board.getPieceAt(x, y);
+        return !piece || piece.camp !== this.camp;
+    }
+
+    isValidPos(x, y) {
+        return x >= 0 && x <= 8 && y >= 0 && y <= 9;
     }
 }

@@ -1,46 +1,119 @@
 /** 游戏控制类 - 管理游戏流程、回合、胜负 */
-class Game {
-    constructor() {
+import { Config } from '../config.js';  // 导入游戏配置
+import { ChessBoard } from './chessboard.js';  // 导入棋盘类
+import { King } from './king.js';  // 导入将帅类
+import { Advisor } from './advisor.js';  // 导入士类
+import { Bishop } from './bishop.js';  // 导入象类
+import { Knight } from './knight.js';  // 导入马类
+import { Rook } from './rook.js';  // 导入车类
+import { Cannon } from './cannon.js';  // 导入炮类
+import { Pawn } from './pawn.js';  // 导入兵类
+
+export class Game {
+    constructor(fen = Config.INIT_FEN) {
         this.isPlay = false;       // 是否开始游戏
-        this.currentCamp = 1;      // 当前阵营 1=红 -1=黑
+        this.currentCamp = '红方';      // 当前阵营 "红方"/"黑方"
         this.selectedPiece = null;  // 选中的棋子
         this.legalMoves = [];       // 合法移动列表
-        this.board = new Board();   // 棋盘实例
         this.moveHistory = [];      // 移动历史
-        this.initBoard();
+        this.imageCache = {};       // 统一管理图片缓存
+        this.board = ChessBoard.fromFen(fen, { imageCache: this.imageCache });  // 从FEN创建棋盘实例
     }
 
-    initBoard() { this.board.clear(); this.setupInitialPosition(); }
+    // 预加载所有图片
+    async preloadImages() {
+        // 加载棋盘图片
+        await this.loadBoardImage();
+        // 加载所有棋子图片
+        await this.loadPieceImages();
+    }
 
-    // 初始化棋盘 - 使用FEN格式简化
-    setupInitialPosition() {
-        const pieces = [
-            // 红方(小写): 车r 马n 相b 士a 帅k 炮c 兵p
-            [0,9,'r0',Rook],[1,9,'n0',Knight],[2,9,'b0',Bishop],[3,9,'a0',Advisor],[4,9,'k0',King],
-            [5,9,'a1',Advisor],[6,9,'b1',Bishop],[7,9,'n1',Knight],[8,9,'r1',Rook],
-            [1,7,'c0',Cannon],[7,7,'c1',Cannon],[0,6,'p0',Pawn],[2,6,'p1',Pawn],
-            [4,6,'p2',Pawn],[6,6,'p3',Pawn],[8,6,'p4',Pawn],
-            // 黑方(大写): 车R 马N 象B 士A 将K 炮C 卒P
-            [0,0,'R0',Rook],[1,0,'N0',Knight],[2,0,'B0',Bishop],[3,0,'A0',Advisor],[4,0,'K0',King],
-            [5,0,'A1',Advisor],[6,0,'B1',Bishop],[7,0,'N1',Knight],[8,0,'R1',Rook],
-            [1,2,'C0',Cannon],[7,2,'C1',Cannon],[0,3,'P0',Pawn],[2,3,'P1',Pawn],
-            [4,3,'P2',Pawn],[6,3,'P3',Pawn],[8,3,'P4',Pawn]
-        ];
-        pieces.forEach(([x, y, key, PieceClass]) => {
-            this.board.placePiece(x, y, key, new PieceClass(x, y, key < 'a' ? -1 : 1));
+    // 加载棋盘背景图
+    loadBoardImage() {
+        const boardImage = Config.IMAGES.BASE_PATH + 'chessboard.png';
+        if (this.imageCache[boardImage]) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                this.imageCache[boardImage] = img;
+                resolve();
+            };
+            img.onerror = () => reject(new Error('Failed to load chessboard'));
+            img.src = boardImage;
         });
     }
 
-    // 处理点击
+    // 预加载所有棋子图片
+    loadPieceImages() {
+        const { BASE_PATH, PIECE_LIST } = Config.IMAGES;
+        const promises = PIECE_LIST.map(name => this.loadImage(BASE_PATH + name));
+        return Promise.all(promises);
+    }
+
+    // 加载单张图片
+    loadImage(path) {
+        if (this.imageCache[path]) return Promise.resolve(this.imageCache[path]);
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                this.imageCache[path] = img;
+                resolve(img);
+            };
+            img.onerror = () => reject(new Error(`图片加载失败: ${path}`));
+            img.src = path;
+        });
+    }
+
+    // 初始化画布
+    async initCanvas(canvasId) {
+        // 预加载所有图片
+        await this.preloadImages();
+        // 获取canvas元素
+        this.canvas = document.getElementById(canvasId);
+        if (this.canvas) {
+            // 获取绘图上下文
+            this.board.ctx = this.canvas.getContext('2d');
+            // 设置canvas大小
+            this.canvas.width = Config.CANVAS_SIZE.WIDTH;
+            this.canvas.height = Config.CANVAS_SIZE.HEIGHT;
+            // 将canvas引用传递给chessboard
+            this.board.canvas = this.canvas;
+            // 传入图片缓存给棋盘
+            this.board.imageCache = this.imageCache;
+            // 更新所有棋子的imageCache引用
+            this.board.grid.flat().forEach(piece => {
+                if (piece) piece.imageCache = this.imageCache;
+            });
+        }
+        this.render();
+    }
+
+    // 绘制棋盘
+    render() {
+        this.board.render();
+    }
+
+    // 初始化棋盘 - 使用FEN格式重新开始
+    initBoard(fen = Config.INIT_FEN) {
+        this.board = ChessBoard.fromFen(fen, { imageCache: this.imageCache });
+        // 更新所有棋子的imageCache引用
+        this.board.grid.flat().forEach(piece => {
+            if (piece) piece.imageCache = this.imageCache;
+        });
+    }
+
+    // 处理棋盘点击事件
     handleClick(gridX, gridY) {
         if (!this.isPlay) return { action: 'none' };
         const clickedPiece = this.board.getPieceAt(gridX, gridY);
 
         // 有选中棋子时
         if (this.selectedPiece) {
+            // 检查是否为合法移动
             if (this.legalMoves.some(m => m[0] === gridX && m[1] === gridY)) {
                 return this.executeMove(this.selectedPiece, gridX, gridY);
             }
+            // 选择同阵营的棋子
             if (clickedPiece?.camp === this.currentCamp) {
                 this.selectPiece(clickedPiece);
                 return { action: 'select', piece: clickedPiece };
@@ -57,32 +130,40 @@ class Game {
         return { action: 'none' };
     }
 
+    // 选中棋子
     selectPiece(piece) {
         this.selectedPiece = piece;
         piece.select();
-        this.legalMoves = piece.getLegalMoves(this.board.grid, this.board.pieces);
+        this.legalMoves = piece.getLegalMoves(this.board.grid, this.board);
+        this.render();  // 选中后重绘
     }
 
+    // 取消选中棋子
     deselectPiece() {
         this.selectedPiece?.deselect();
         this.selectedPiece = null;
         this.legalMoves = [];
+        this.render();  // 取消选中后重绘
     }
 
+    // 执行移动
     executeMove(piece, toX, toY) {
         const { x: fromX, y: fromY } = piece;
         const result = this.board.movePiece(fromX, fromY, toX, toY);
         this.moveHistory.push({ piece, fromX, fromY, toX, toY, captured: result.captured });
         this.deselectPiece();
+        this.render();  // 移动后重绘
         const gameResult = this.checkGameEnd();
         this.switchTurn();
         return { action: 'move', fromX, fromY, toX, toY, captured: result.captured, gameResult };
     }
 
-    switchTurn() { this.currentCamp = -this.currentCamp; }
+    // 切换回合
+    switchTurn() { this.currentCamp = this.currentCamp === '红方' ? '黑方' : '红方'; }
 
+    // 检查游戏是否结束
     checkGameEnd() {
-        const enemy = this.currentCamp === 1 ? -1 : 1;
+        const enemy = this.currentCamp === '红方' ? '黑方' : '红方';
         return this.board.isCheckmate(enemy) ? { winner: this.currentCamp, reason: '将死' } : null;
     }
 
@@ -96,24 +177,36 @@ class Game {
                 if (m.captured.key) this.board.placePiece(m.toX, m.toY, m.captured.key, m.captured.piece);
             }
         }
-        this.currentCamp = 1;
+        this.currentCamp = '红方';
         this.deselectPiece();
         return true;
     }
 
+    // 重新开始游戏
     restart() {
         this.isPlay = true;
-        this.currentCamp = 1;
+        this.currentCamp = '红方';
         this.moveHistory = [];
         this.deselectPiece();
         this.initBoard();
+        // 重新初始化canvas（因为board是新实例）
+        if (this.canvas) {
+            this.board.ctx = this.canvas.getContext('2d');
+            this.board.canvas = this.canvas;
+            // 更新所有棋子的imageCache引用
+            this.board.grid.flat().forEach(piece => {
+                if (piece) piece.imageCache = this.imageCache;
+            });
+        }
+        this.render();  // 重开游戏后重绘
     }
 
+    // 获取游戏状态
     getStatus() {
         return {
             isPlay: this.isPlay,
             currentCamp: this.currentCamp,
-            currentCampName: this.currentCamp === 1 ? '红方' : '黑方',
+            currentCampName: this.currentCamp,
             moveCount: this.moveHistory.length
         };
     }
@@ -121,7 +214,7 @@ class Game {
     // 获取当前阵营所有合法移动
     getAllLegalMoves() {
         return this.board.getPiecesByCamp(this.currentCamp).flatMap(p =>
-            p.getLegalMoves(this.board.grid, this.board.pieces).map(m => [p.x, p.y, m[0], m[1]])
+            p.getLegalMoves(this.board.grid, this.board).map(m => [p.x, p.y, m[0], m[1]])
         );
     }
 }

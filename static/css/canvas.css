@@ -1,0 +1,14 @@
+/**
+ * Canvas画布样式 - 仅用于canvas定位
+ */
+
+/* 棋盘界面容器 */
+#chessBoardBox {
+    display: none;                      /* 默认隐藏 */
+}
+
+/* Canvas画布居中 */
+#chessCanvas {
+    display: block;
+    margin: 0 auto;
+}
