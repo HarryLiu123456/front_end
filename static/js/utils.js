@@ -1,108 +1,70 @@
-/**
- * 工具函数
- */
+/** 工具函数 - 基于Config中的映射进行转换 */
+import { Config } from './config.js';
 
-/**
- * 工具类
- */
 export const Utils = {
-    /**
-     * 深度克隆数组
-     * @param {Array} arr - 要克隆的数组
-     * @returns {Array} 克隆后的新数组
-     */
+    /** 深度克隆数组 */
     deepCloneArray: function(arr) {
         if (!Array.isArray(arr)) return arr;
-        return arr.map((v, i) => Array.isArray(v) ? this.deepCloneArray(v) : v);
+        return arr.map(v => Array.isArray(v) ? this.deepCloneArray(v) : v);
     },
 
-    /**
-     * 坐标是否有效
-     * @param {number} x - X坐标
-     * @param {number} y - Y坐标
-     * @returns {boolean} 是否有效
-     */
+    /** 坐标是否有效 (x: 0-8, y: 0-9) */
     isValidPosition: function(x, y) {
         return x >= 0 && x <= 8 && y >= 0 && y <= 9;
     },
 
-    /**
-     * 获取棋子类型(小写)
-     * @param {string} key - 棋子标识
-     * @returns {string} 棋子类型
-     */
-    getPieceType: function(key) {
-        return key ? key.charAt(0).toLowerCase() : '';
-    },
-
-    /**
-     * 获取棋子阵营
-     * @param {string} key - 棋子标识
-     * @returns {number} 阵营：1红方/-1黑方
-     */
-    getPieceCamp: function(key) {
-        if (!key) return 0;
-        const c = key.charAt(0);
-        return c === c.toLowerCase() ? 1 : -1;
-    },
-
-    /**
-     * 网格转像素坐标
-     * @param {number} gridX - 网格X坐标
-     * @param {number} gridY - 网格Y坐标
-     * @param {Object} config - 棋盘配置
-     * @returns {Object} 像素坐标 {pixelX, pixelY}
-     */
-    gridToPixel: function(gridX, gridY, config) {
-        return {
-            pixelX: config.SPACE_X * gridX + config.POINT_START_X,
-            pixelY: config.SPACE_Y * gridY + config.POINT_START_Y
-        };
-    },
-
-    /**
-     * 像素转网格坐标
-     * @param {number} pixelX - 像素X坐标
-     * @param {number} pixelY - 像素Y坐标
-     * @param {Object} config - 棋盘配置
-     * @returns {Object} 网格坐标 {gridX, gridY}
-     */
-    pixelToGrid: function(pixelX, pixelY, config) {
-        return {
-            gridX: Math.round((pixelX - config.POINT_START_X) / config.SPACE_X),
-            gridY: Math.round((pixelY - config.POINT_START_Y) / config.SPACE_Y)
-        };
-    },
-
-    /**
-     * 曼哈顿距离
-     * @param {number} x1 - 起点X
-     * @param {number} y1 - 起点Y
-     * @param {number} x2 - 终点X
-     * @param {number} y2 - 终点Y
-     * @returns {number} 曼哈顿距离
-     */
-    getManhattanDistance: function(x1, y1, x2, y2) {
-        return Math.abs(x2 - x1) + Math.abs(y2 - y1);
-    },
-
-    /**
-     * 是否相邻
-     * @param {number} x1 - X1
-     * @param {number} y1 - Y1
-     * @param {number} x2 - X2
-     * @param {number} y2 - Y2
-     * @returns {boolean} 是否相邻
-     */
-    isAdjacent: function(x1, y1, x2, y2) {
-        return (Math.abs(x2 - x1) === 1 && y2 === y1) || (Math.abs(y2 - y1) === 1 && x2 === x1);
-    },
-
-    /**
-     * 生成唯一ID
-     * @returns {string} 唯一ID
-     */
+    /** 生成唯一ID */
     generateId: function() {
         return 'piece_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    },
+
+    // ==================== 棋子映射转换 ====================
+
+    /** 类名转FEN字符 */
+    classNameToFen: function(className) {
+        const info = Config.PIECE_MAP[className];
+        return info ? info.fen : '';
+    },
+
+    /** FEN字符转类名 */
+    fenToClassName: function(fen) {
+        return Config.FEN_PIECE_MAP[fen] || '';
+    },
+
+    /** FEN字符转阵营 */
+    fenToCamp: function(fen) {
+        return fen === fen.toLowerCase() ? '黑方' : '红方';
+    },
+
+    /** 类名转红方名称 */
+    classNameToRedName: function(className) {
+        const info = Config.PIECE_MAP[className];
+        return info ? info.redName : '';
+    },
+
+    /** 类名转黑方名称 */
+    classNameToBlackName: function(className) {
+        const info = Config.PIECE_MAP[className];
+        return info ? info.blackName : '';
+    },
+
+    /** 获取类名的完整信息 */
+    getPieceInfo: function(className) {
+        return Config.PIECE_MAP[className] || null;
+    },
+
+    /** 获取所有棋子类名列表 */
+    getClassList: function() {
+        return Config.CLASS_LIST;
+    },
+
+    /** 棋盘x坐标转字母(a-i) */
+    xToLetter: function(x) {
+        return String.fromCharCode('a'.charCodeAt(0) + x);
+    },
+
+    /** 字母(a-i)转棋盘x坐标 */
+    letterToX: function(letter) {
+        return letter.charCodeAt(0) - 'a'.charCodeAt(0);
     }
 };

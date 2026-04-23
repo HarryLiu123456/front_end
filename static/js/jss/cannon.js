@@ -1,75 +1,41 @@
-/**
- * 炮类
- * 横竖方向移动
- * 空位可走，吃子必须隔一子（炮架）
+/** 炮类 - 横竖移动，吃子需隔一子
+ * 坐标：x 0-8从左到右，y 0-9从上到下
  */
 import { Piece } from './piece.js';
-import { Config } from '../config.js';
 
 export class Cannon extends Piece {
-    /**
-     * 构造函数
-     * @param {number} x - 棋盘X坐标
-     * @param {number} y - 棋盘Y坐标
-     * @param {string} camp - 阵营
-     * @param {Object} imageCache - 图片缓存
-     */
     constructor(x, y, camp, imageCache = {}) {
         super(x, y, camp, imageCache);
-        const { BASE_PATH } = Config.IMAGES;
-        const prefix = camp === '红方' ? 'red_cannon' : 'black_cannon';
-        this.imagePath = BASE_PATH + prefix + '.png';
+        this.setImagePath(camp === '红方' ? 'red_cannon' : 'black_cannon');
     }
 
-    /**
-     * 获取炮的合法移动位置
-     * 横竖方向移动，空位可走，吃子需隔一子（炮架）
-     * @param {Array} map - 棋盘二维数组
-     * @param {ChessBoard} board - 棋盘对象
-     * @returns {Array} 可移动位置数组
-     */
+    /** 获取合法移动位置 - 返回[x, y] */
     getLegalMoves(map, board) {
         const moves = [];
-        // 四个方向：左、右、上、下
         const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
         for (const [dx, dy] of directions) {
-            let jumpCount = 0;  // 记录已遇到的棋子数
-
+            let jumpCount = 0;
             for (let i = 1; i <= 9; i++) {
                 const nx = this.x + dx * i;
                 const ny = this.y + dy * i;
-
-                // 检查是否超出棋盘边界
                 if (nx < 0 || nx > 8 || ny < 0 || ny > 9) break;
 
                 const piece = board.getPieceAt(nx, ny);
-
                 if (piece) {
-                    // 遇到棋子
                     if (jumpCount === 0) {
-                        // 第一个棋子作为"炮架"，继续搜索
                         jumpCount++;
-                        continue;
+                    } else if (piece.camp !== this.camp) {
+                        moves.push([nx, ny]);
+                        break;
                     } else {
-                        // 第二个棋子：敌方可吃
-                        if (piece.camp !== this.camp) {
-                            moves.push([nx, ny]);
-                        }
-                        // 遇子停止搜索
                         break;
                     }
-                } else {
-                    // 空位
-                    if (jumpCount === 0) {
-                        // 未遇棋子时空位可走
-                        moves.push([nx, ny]);
-                    }
-                    // 遇一子后，空位不可走
+                } else if (jumpCount === 0) {
+                    moves.push([nx, ny]);
                 }
             }
         }
-
         return moves;
     }
 }

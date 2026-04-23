@@ -1,103 +1,65 @@
-/**
- * 棋子基类
- * 所有棋子类型的父类，定义通用属性和方法
+/** 棋子基类 - 所有棋子类型的父类
+ * 坐标说明：
+ * - x: 棋盘x坐标 0-8，从左到右
+ * - y: 棋盘y坐标 0-9，从上到下
+ * - 存储：grid[x][y]
  */
 import { Config } from '../config.js';
 
 export class Piece {
-    /**
-     * 构造函数
-     * @param {number} x - 棋盘X坐标 (0-8)
-     * @param {number} y - 棋盘Y坐标 (0-9)
-     * @param {string} camp - 阵营: "红方" / "黑方"
-     * @param {Object} imageCache - 图片缓存对象
-     */
     constructor(x, y, camp, imageCache = {}) {
-        this.x = x;                      // 棋盘X坐标 (0-8)
-        this.y = y;                      // 棋盘Y坐标 (0-9)
-        this.camp = camp;                // 阵营: "红方" / "黑方"
-        this.imagePath = null;            // 图片路径（子类设置）
-        this.imageCache = imageCache;   // 图片缓存
-        this.isSelected = false;          // 是否被选中
+        this.x = x;                      // 棋盘x坐标 (0-8，从左到右)
+        this.y = y;                      // 棋盘y坐标 (0-9，从上到下)
+        this.camp = camp;
+        this.imagePath = null;
+        this.imageCache = imageCache;
+        this.isSelected = false;
     }
 
-    /**
-     * 获取棋子名称
-     */
+    /** 获取棋子名称 */
     get name() {
-        const info = Config.PIECE_INFO[this.constructor.name];
+        const info = Config.PIECE_MAP[this.constructor.name];
         return this.camp === '红方' ? info.redName : info.blackName;
     }
 
-    /**
-     * 获取棋子图片路径
-     * @returns {string|null} 图片路径
-     */
-    getImagePath() {
-        return this.imagePath;
+    /** 设置棋子图片路径 */
+    setImagePath(prefix) {
+        this.imagePath = Config.IMAGES.BASE_PATH + prefix + '.png';
     }
 
-    /**
-     * 绘制棋子
-     * @param {CanvasRenderingContext2D} ctx - Canvas绘图上下文
-     * @param {number} centerX - 棋子中心X坐标
-     * @param {number} centerY - 棋子中心Y坐标
-     */
+    /** 绘制棋子 */
     draw(ctx, centerX, centerY) {
-        // 获取棋子图片
         const img = this.imageCache[this.imagePath];
         if (!img) return;
-
-        // 计算棋子绘制位置（以左上角为基准）
         const { WIDTH: pw, HEIGHT: ph } = Config.PIECE_SIZE;
-        const dx = centerX - pw / 2;  // X居中偏移
-        const dy = centerY - ph / 2;  // Y居中偏移
-
-        // 绘制棋子图片
-        ctx.drawImage(img, dx, dy, pw, ph);
-
-        // 如果被选中，绘制选中边框
+        ctx.drawImage(img, centerX - pw / 2, centerY - ph / 2, pw, ph);
         if (this.isSelected) {
-            this.drawSelectionBorder(ctx, dx, dy, pw, ph);
+            this.drawSelectionBorder(ctx, centerX - pw / 2, centerY - ph / 2, pw, ph);
         }
     }
 
-    /**
-     * 绘制选中边框（红色角标）
-     * @param {CanvasRenderingContext2D} ctx - Canvas绘图上下文
-     * @param {number} dx - X坐标
-     * @param {number} dy - Y坐标
-     * @param {number} dw - 宽度
-     * @param {number} dh - 高度
-     */
+    /** 绘制选中边框 */
     drawSelectionBorder(ctx, dx, dy, dw, dh) {
-        const cornerLen = Math.min(dw, dh) * 0.3;  // 角标长度为短边的30%
-        ctx.strokeStyle = '#ff0000';  // 红色
-        ctx.lineWidth = 3;            // 线宽
-        ctx.lineCap = 'round';        // 圆角线帽
-
-        // 左上角
+        const cornerLen = Math.min(dw, dh) * 0.3;
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        // 四角边框
         ctx.beginPath();
         ctx.moveTo(dx - 2, dy - 2 + cornerLen);
         ctx.lineTo(dx - 2, dy - 2);
         ctx.lineTo(dx - 2 + cornerLen, dy - 2);
         ctx.stroke();
-
-        // 右上角
         ctx.beginPath();
         ctx.moveTo(dx + dw + 2 - cornerLen, dy - 2);
         ctx.lineTo(dx + dw + 2, dy - 2);
         ctx.lineTo(dx + dw + 2, dy - 2 + cornerLen);
         ctx.stroke();
-
-        // 左下角
         ctx.beginPath();
         ctx.moveTo(dx - 2, dy + dh + 2 - cornerLen);
         ctx.lineTo(dx - 2, dy + dh + 2);
         ctx.lineTo(dx - 2 + cornerLen, dy + dh + 2);
         ctx.stroke();
-
-        // 右下角
         ctx.beginPath();
         ctx.moveTo(dx + dw + 2 - cornerLen, dy + dh + 2);
         ctx.lineTo(dx + dw + 2, dy + dh + 2);
@@ -105,27 +67,16 @@ export class Piece {
         ctx.stroke();
     }
 
-    /**
-     * 获取合法移动位置（子类必须重写）
-     * @param {Array} map - 棋盘二维数组
-     * @param {ChessBoard} board - 棋盘对象
-     * @returns {Array} 可移动位置数组 [[x1,y1], [x2,y2], ...]
-     */
-    getLegalMoves(map, board) {
-        return [];
+    /** 获取合法移动位置（子类重写）返回[x, y] */
+    getLegalMoves(map, board) { return []; }
+
+    /** 检查是否可以走到目标位置 */
+    canGoTo(x, y, board) {
+        if (x < 0 || x > 8 || y < 0 || y > 9) return false;
+        const piece = board.getPieceAt(x, y);
+        return !piece || piece.camp !== this.camp;
     }
 
-    /**
-     * 选中棋子
-     */
-    select() {
-        this.isSelected = true;
-    }
-
-    /**
-     * 取消选中棋子
-     */
-    deselect() {
-        this.isSelected = false;
-    }
+    select() { this.isSelected = true; }
+    deselect() { this.isSelected = false; }
 }
