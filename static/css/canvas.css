@@ -9,6 +9,31 @@
     padding: 20px;                      /* 内边距 */
 }
 
+/* 按钮容器 - 水平排列 */
+.chess-board-box__buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;                /* 与棋盘之间的间距 */
+    flex-wrap: wrap;                    /* 移动端自动换行 */
+}
+
+/* 按钮样式 - 与其他界面一致 */
+.chess-board-box__btn {
+    padding: 10px 30px;
+    font-size: 18px;
+}
+
+/* 步数信息显示区域 */
+.chess-board-box__info {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
 /* Canvas画布居中 */
 #chessCanvas {
     display: block;
@@ -21,5 +46,14 @@
 @media (max-width: 768px) {
     .chess-board-box {
         padding: 10px;
+    }
+    
+    .chess-board-box__buttons {
+        gap: 10px;
+    }
+    
+    .chess-board-box__btn {
+        padding: 8px 20px;
+        font-size: 14px;
     }
 }

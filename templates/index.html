@@ -44,6 +44,17 @@
          第三个界面 - 棋盘游戏界面
          ============================================ -->
     <div class="chess-board-box">
+        <!-- 按钮容器 -->
+        <div class="chess-board-box__buttons">
+            <button class="btn chess-board-box__btn" id="regretBtn">悔棋</button>
+            <button class="btn chess-board-box__btn" id="restartBtn">重新开始</button>
+            <button class="btn chess-board-box__btn" id="backBtn">回到开始界面</button>
+        </div>
+        <!-- 步数信息显示 -->
+        <div class="chess-board-box__info">
+            <span id="moveCount">当前步数：0</span>
+            <span id="noCaptureCount">未吃子步数：0</span>
+        </div>
         <!-- 棋盘Canvas画布 -->
         <canvas id="chessCanvas"></canvas>
     </div>
