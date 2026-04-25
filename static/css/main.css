@@ -1,0 +1,304 @@
+/**
+ * 基于AlphaZero的中国象棋系统 - 主样式表
+ * 命名规范：
+ *   - .screen: 通用界面容器
+ *   - .screen--xxx: 特定界面（BEM变体）
+ *   - .game-panel: 游戏界面面板
+ *   - .btn--xxx: 特定类型按钮
+ */
+
+/* ==================== 全局重置 ==================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    font-size: 20px;
+    background: #ffffff;
+    min-height: 100vh;
+}
+
+/* ==================== CSS变量 ==================== */
+
+:root {
+    --primary-color: #000000;
+    --bg-color: #ffffff;
+    --border-color: #ccc;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --transition-speed: 0.3s;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 40px;
+    --spacing-xl: 60px;
+}
+
+/* ==================== 通用按钮 ==================== */
+
+.btn {
+    background: var(--bg-color);
+    color: var(--primary-color);
+    border: 2px solid var(--border-color);
+    padding: var(--spacing-md) calc(var(--spacing-md) * 3);
+    font-size: 20px;  /* 固定20px */
+    font-family: inherit;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow-medium);
+    border-color: #999;
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ==================== 通用界面容器 ==================== */
+
+.screen {
+    display: none;
+    min-height: 100vh;
+    animation: fadeIn 0.5s ease;
+}
+
+.screen.is-visible {
+    display: flex;
+}
+
+/* ==================== 界面1：主菜单 ==================== */
+
+.screen--menu {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.screen--menu .screen__title {
+    font-size: 30px;  /* 标题30px */
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: var(--spacing-xl);
+}
+
+.screen--menu .screen__btn {
+    box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+/* ==================== 界面2：选择阵营 ==================== */
+
+.screen--camp-select {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.screen--camp-select .screen__title {
+    font-size: 30px;  /* 标题30px */
+    font-weight: bold;
+    margin-bottom: var(--spacing-xl);
+    color: var(--primary-color);
+}
+
+/* 选项容器：垂直排列 */
+.screen__options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.btn--camp {
+    border-radius: 50px;
+    box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+.btn--camp:hover {
+    box-shadow: 0 6px 20px var(--shadow-medium);
+}
+
+/* ==================== 界面3：游戏棋盘 ==================== */
+
+.screen--game {
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+    padding: 0;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* 游戏面板（左右两侧） */
+.game-panel {
+    width: 500px;
+    flex-shrink: 0;
+    background: #ffffff;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.game-panel__btn {
+    width: 180px;
+    height: 50px;
+    padding: 0 16px;
+    white-space: nowrap;
+    text-align: center;
+    border-radius: 8px;
+    line-height: 50px;
+}
+
+/* 棋盘区域 */
+.game-board {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+}
+
+/* Canvas画布 */
+#chessCanvas {
+    background: #ffffff;
+}
+
+/* 游戏信息 */
+.game-panel span {
+    padding: 8px 12px;
+    background: #ffffff;
+    border-radius: 4px;
+    color: #333;
+}
+
+/* 当前回合状态区域 */
+.turn-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.turn-status span {
+    padding: 0;
+    background: transparent;
+}
+
+#turnLabel {
+    font-size: 16px;
+    color: #666;
+}
+
+#turnCamp {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 操作指示器 */
+.turn-indicator {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* 等待玩家操作状态 */
+.turn-indicator.waiting-player {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
+
+/* 等待AI/敌方操作状态 */
+.turn-indicator.waiting-ai {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #e65100;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* 脉冲动画 - 表示正在处理 */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ==================== 界面4：游戏结束 ==================== */
+
+.screen--gameover {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.gameover-modal {
+    background: #fff;
+    padding: 40px 60px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: modalPop 0.3s ease;
+}
+
+.gameover__title {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.gameover__message {
+    font-size: 24px;
+    color: #666;
+}
+
+/* 弹出动画 */
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ==================== 动画效果 ==================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

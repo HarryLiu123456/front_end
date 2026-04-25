@@ -348,6 +348,10 @@ export class Game {
     /** 悔棋 */
     regret() {
         if (this.fenHistory.length < 2) return false;
+        
+        // 停止敌方等待状态
+        this.stopWaitingForEnemy();
+        
         this.fenHistory.pop();
         const targetFen = this.fenHistory[this.fenHistory.length - 1];
         const result = Game.fromFen(targetFen, this);
@@ -358,28 +362,42 @@ export class Game {
         this.deselectPiece();
         this.render();
         this.updateMoveDisplay();
+        this.updateTurnStatus();  // 更新回合状态显示
         return true;
     }
 
-    /** 重新开始 */
+    /** 重新开始 - 重置到初始状态
+     * 清空FEN历史，重建棋盘，恢复所有状态
+     */
     restart() {
-        this.isPlay = true;
-        this.noCaptureMoveCount = 0;
-        this.fullmoveNumber = 1;
-        this.deselectPiece();
-        while (this.fenHistory.length > 1) this.fenHistory.pop();
+        // 停止敌方等待状态
+        this.stopWaitingForEnemy();
         
+        // 重置FEN历史，只保留初始状态
+        this.fenHistory = [GameConfig.INIT_FEN];
+        
+        // 从初始FEN重建棋盘
         const result = Game.fromFen(this.fenHistory[0], this);
         this.grid = result.grid;
         this.currentCamp = result.currentCamp;
-        for (let x = 0; x < 9; x++) {
-            for (let y = 0; y < 10; y++) {
-                const p = this.grid[x][y];
-                if (p) p.imageCache = this.imageCache;
-            }
-        }
+        this.noCaptureMoveCount = result.halfmoveClock;
+        this.fullmoveNumber = result.fullmoveNumber;
+        
+        // 重置选中状态
+        this.selectedPiece = null;
+        this.deselectPiece();
+        
+        // 更新界面显示
         this.render();
         this.updateMoveDisplay();
+        this.updateTurnStatus();
+        
+        this.isPlay = true;
+        
+        // 玩家选择黑方时，敌方（红方）先移动
+        if (this.playerStartCamp === '黑方') {
+            this.startWaitingForEnemy();
+        }
     }
 
     // ==================== FEN格式 ====================
@@ -427,12 +445,44 @@ export class Game {
         return { isPlay: this.isPlay, currentCamp: this.currentCamp, moveCount: this.fenHistory.length - 1 };
     }
 
+    /**
+     * 更新回合状态显示
+     * 根据当前回合和等待状态显示相应的提示
+     */
+    updateTurnStatus() {
+        const turnCampEl = document.getElementById('turnCamp');
+        const turnIndicatorEl = document.getElementById('turnIndicator');
+        
+        if (!turnCampEl || !turnIndicatorEl) return;
+        
+        // 更新当前回合显示
+        turnCampEl.textContent = this.currentCamp;
+        
+        // 清除所有状态类
+        turnIndicatorEl.classList.remove('waiting-player', 'waiting-ai');
+        
+        if (this.isWaitingForEnemy) {
+            // 正在等待AI/敌方操作
+            turnIndicatorEl.classList.add('waiting-ai');
+            turnIndicatorEl.querySelector('.turn-indicator__text').textContent = '等待AI操作...';
+        } else if (this.currentCamp === this.playerStartCamp) {
+            // 玩家回合，等待玩家操作
+            turnIndicatorEl.classList.add('waiting-player');
+            turnIndicatorEl.querySelector('.turn-indicator__text').textContent = '等待玩家操作';
+        } else {
+            // 敌方回合，等待敌方操作
+            turnIndicatorEl.classList.add('waiting-ai');
+            turnIndicatorEl.querySelector('.turn-indicator__text').textContent = '等待敌方操作';
+        }
+    }
+
     // ==================== 敌方操作 ====================
 
     /** 开始游戏 */
     async startGame() {
         this.isPlay = true;
         this.render();
+        this.updateTurnStatus();  // 更新回合状态显示
         // 玩家选择黑方时，敌方（红方）先移动，使用阻塞等待机制
         if (this.playerStartCamp === '黑方') {
             this.startWaitingForEnemy();
@@ -451,6 +501,7 @@ export class Game {
         
         this.isWaitingForEnemy = true;
         this.updateWaitingStatus(true, '等待敌方移动...');
+        this.updateTurnStatus();  // 更新回合状态显示
         
         // 立即执行一次轮询
         this.pollForEnemyMove();
@@ -477,6 +528,7 @@ export class Game {
             this.waitingIntervalId = null;
         }
         this.updateWaitingStatus(false, '');
+        this.updateTurnStatus();  // 更新回合状态显示
         
         console.log('[Game] 停止等待敌方移动');
     }
@@ -548,7 +600,11 @@ export class Game {
                             // 检查游戏是否结束
                             const gameResult = this.checkGameEnd();
                             if (gameResult) {
-                                alert(`${gameResult.winner}获胜！`);
+                                // 停止游戏
+                                this.isPlay = false;
+                                this.stopWaitingForEnemy();
+                                // 显示获胜界面（需要在 window 上定义或通过事件触发）
+                                window.showGameOver?.(gameResult.winner);
                             }
                             
                             console.log('[Game] 敌方移动完成:', fromX, fromY, '->', toX, toY);
@@ -576,20 +632,13 @@ export class Game {
     /**
      * 更新等待状态显示
      * @param {boolean} isWaiting - 是否正在等待
-     * @param {string} message - 状态消息
+     * @param {string} message - 状态消息（已废弃，不再使用）
      */
     updateWaitingStatus(isWaiting, message) {
-        // 可选：在界面上显示等待状态
-        const statusEl = document.getElementById('gameStatus');
-        if (statusEl) {
-            statusEl.textContent = message;
-            statusEl.style.display = isWaiting ? 'block' : 'none';
-        }
-        
-        // 可选：禁用玩家的操作（如果需要）
+        // 禁用玩家的操作
         const canvasEl = document.getElementById('chessCanvas');
         if (canvasEl) {
-            canvasEl.style.opacity = isWaiting ? '0.7' : '1';
+            canvasEl.classList.toggle('is-waiting', isWaiting);
         }
     }
 
@@ -599,7 +648,11 @@ export class Game {
         switch (result.action) {
             case 'move':
                 if (result.gameResult) {
-                    alert(`${result.gameResult.winner}获胜！`);
+                    // 停止游戏
+                    this.isPlay = false;
+                    this.stopWaitingForEnemy();
+                    // 显示获胜界面
+                    window.showGameOver?.(result.gameResult.winner);
                     return;
                 }
                 // 玩家移动成功后，使用阻塞等待机制等待敌方移动

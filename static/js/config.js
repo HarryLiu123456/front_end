@@ -6,7 +6,7 @@
 // ==================== 游戏配置 ====================
 export const GameConfig = {
     // ==================== 画布尺寸 ====================
-    CANVAS_SIZE: { WIDTH: 700, HEIGHT: 850 },      // 画布总尺寸
+    CANVAS_SIZE: { WIDTH: 700, HEIGHT: 750 },      // 画布总尺寸
     PIECE_SIZE: { WIDTH: 75, HEIGHT: 75 },          // 棋子显示尺寸
     CHESSBOARD_SIZE: { WIDTH: 650, HEIGHT: 700 },   // 棋盘显示尺寸
 

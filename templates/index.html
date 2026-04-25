@@ -5,63 +5,69 @@
     <meta charset="UTF-8">
     <!-- 视口设置，用于移动端响应式布局 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 页面标题：中国象棋游戏 -->
+    <!-- 页面标题 -->
     <title>基于AlphaZero的中国象棋系统</title>
     
-    <!-- 引入外部CSS样式文件 -->
-    <link rel="stylesheet" href="static/css/reset.css">  <!-- 全局样式重置 -->
-    <link rel="stylesheet" href="static/css/base.css">  <!-- 页面基础样式 -->
-    <link rel="stylesheet" href="static/css/menu.css">   <!-- 菜单界面和游戏选择界面样式 -->
-    <link rel="stylesheet" href="static/css/canvas.css"> <!-- Canvas画布样式 -->
+    <!-- 网页图标：使用红方将帅图片 -->
+    <link rel="icon" href="static/imgs/red_king.png" type="image/png">
+    
+    <!-- 引入CSS样式文件 -->
+    <link rel="stylesheet" href="static/css/main.css">
 </head>
 <body>
-    <!-- ============================================
-         第一个界面 - 菜单界面
-         ============================================ -->
-    <div class="menu-box">
-        <!-- 游戏标题 -->
-        <h1 class="menu-box__title">基于AlphaZero的中国象棋系统</h1>
-        <!-- 开始游戏按钮 -->
-        <button class="btn menu-box__start-btn">开始游戏</button>
+    <!-- ==================== 界面1：主菜单 ==================== -->
+    <div class="screen screen--menu">
+        <h1 class="screen__title">基于AlphaZero的中国象棋系统</h1>
+        <button class="btn screen__btn" id="startBtn">开始游戏</button>
     </div>
     
-    <!-- ============================================
-         第二个界面 - 选择棋子颜色界面
-         ============================================ -->
-    <div class="color-selection">
-        <!-- 提示文字 -->
-        <h2 class="color-selection__title">选择您的棋子颜色</h2>
-        <!-- 颜色选择按钮容器 -->
-        <div class="color-selection__options">
-            <!-- 红方按钮：不旋转棋盘(shouldRotate=false) -->
-            <button class="color-btn" id="redBtn">红方（先手）</button>
-            <!-- 黑方按钮：旋转棋盘(shouldRotate=true) -->
-            <button class="color-btn" id="blackBtn">黑方（后手）</button>
+    <!-- ==================== 界面2：选择阵营 ==================== -->
+    <div class="screen screen--camp-select">
+        <h2 class="screen__title">选择您的棋子颜色</h2>
+        <div class="screen__options">
+            <button class="btn btn--camp" id="redBtn">红方（先手）</button>
+            <button class="btn btn--camp" id="blackBtn">黑方（后手）</button>
         </div>
     </div>
     
-    <!-- ============================================
-         第三个界面 - 棋盘游戏界面
-         ============================================ -->
-    <div class="chess-board-box">
-        <!-- 按钮容器 -->
-        <div class="chess-board-box__buttons">
-            <button class="btn chess-board-box__btn" id="regretBtn">悔棋</button>
-            <button class="btn chess-board-box__btn" id="restartBtn">重新开始</button>
-            <button class="btn chess-board-box__btn" id="backBtn">回到开始界面</button>
+    <!-- ==================== 界面3：游戏棋盘 ==================== -->
+    <div class="screen screen--game">
+        <!-- 左侧控制按钮 -->
+        <div class="game-panel game-panel--left">
+            <button class="btn game-panel__btn" id="regretBtn">悔棋</button>
+            <button class="btn game-panel__btn" id="restartBtn">重新开始</button>
+            <button class="btn game-panel__btn" id="backBtn">回到开始界面</button>
         </div>
-        <!-- 步数信息显示 -->
-        <div class="chess-board-box__info">
+        
+        <!-- 中间棋盘区域 -->
+        <div class="game-board">
+            <canvas id="chessCanvas"></canvas>
+        </div>
+        
+        <!-- 右侧信息显示 -->
+        <div class="game-panel game-panel--right">
+            <!-- 当前操作方状态显示 -->
+            <div class="turn-status">
+                <span id="turnLabel">当前回合：</span>
+                <span id="turnCamp">红方</span>
+                <div id="turnIndicator" class="turn-indicator">
+                    <span class="turn-indicator__text">等待操作</span>
+                </div>
+            </div>
             <span id="moveCount">当前步数：0</span>
             <span id="noCaptureCount">未吃子步数：0</span>
         </div>
-        <!-- 棋盘Canvas画布 -->
-        <canvas id="chessCanvas"></canvas>
     </div>
     
-    <!-- ============================================
-         ES6模块方式引入JavaScript
-         ============================================ -->
+    <!-- ==================== 界面4：游戏结束 ==================== -->
+    <div class="screen screen--gameover" id="gameoverScreen">
+        <div class="gameover-modal">
+            <h2 id="gameoverTitle" class="gameover__title">游戏结束</h2>
+            <p id="gameoverMessage" class="gameover__message">红方获胜！</p>
+        </div>
+    </div>
+    
+    <!-- 引入JavaScript模块 -->
     <script type="module" src="static/js/main.js"></script>
 </body>
 </html>
