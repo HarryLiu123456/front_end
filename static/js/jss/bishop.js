@@ -1,6 +1,6 @@
-/** 相/象类 - 田字移动，塞象眼，不过河
- * 坐标：x 0-8从左到右，y 0-9从上到下
- * 红相在下方(y 5-9)，黑象在上方(y 0-4)
+/**
+ * 相/象类
+ * 移动规则：田字对角移动，塞象眼，不过河
  */
 import { Piece } from './piece.js';
 
@@ -10,19 +10,17 @@ export class Bishop extends Piece {
         this.setImagePath(camp === '红方' ? 'red_bishop' : 'black_bishop');
     }
 
-    /** 获取合法移动位置 - 返回[x, y] */
+    /** 获取合法移动位置 */
     getLegalMoves(map, board) {
         const moves = [];
         const isRed = this.camp === '红方';
-        const minY = isRed ? 5 : 0;  // 红方在下方，黑方在上方
+        const minY = isRed ? 5 : 0;
         const maxY = isRed ? 9 : 4;
 
-        // 4个田字方向 + 对应的象眼偏移
+        // 4个田字方向：[目标偏移, 象眼偏移]
         const dirs = [
-            [[2, 2], [1, 1]],
-            [[-2, 2], [-1, 1]],
-            [[2, -2], [1, -1]],
-            [[-2, -2], [-1, -1]]
+            [[2, 2], [1, 1]], [[-2, 2], [-1, 1]],
+            [[2, -2], [1, -1]], [[-2, -2], [-1, -1]]
         ];
         
         for (const [[dx, dy], [ex, ey]] of dirs) {

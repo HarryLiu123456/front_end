@@ -1,5 +1,6 @@
-/** 炮类 - 横竖移动，吃子需隔一子
- * 坐标：x 0-8从左到右，y 0-9从上到下
+/**
+ * 炮类
+ * 移动规则：横竖直线移动，空跑不吃子，吃子需隔一子（炮架）
  */
 import { Piece } from './piece.js';
 
@@ -9,12 +10,11 @@ export class Cannon extends Piece {
         this.setImagePath(camp === '红方' ? 'red_cannon' : 'black_cannon');
     }
 
-    /** 获取合法移动位置 - 返回[x, y] */
+    /** 获取合法移动位置 */
     getLegalMoves(map, board) {
         const moves = [];
-        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-        for (const [dx, dy] of directions) {
+        // 4个方向
+        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
             let jumpCount = 0;
             for (let i = 1; i <= 9; i++) {
                 const nx = this.x + dx * i;

@@ -1,5 +1,6 @@
-/** 马类 - 日字移动，蹩马腿
- * 坐标：x 0-8从左到右，y 0-9从上到下
+/**
+ * 马类
+ * 移动规则：日字移动，蹩马腿
  */
 import { Piece } from './piece.js';
 
@@ -9,7 +10,7 @@ export class Knight extends Piece {
         this.setImagePath(camp === '红方' ? 'red_knight' : 'black_knight');
     }
 
-    /** 获取合法移动位置 - 返回[x, y] */
+    /** 获取合法移动位置 */
     getLegalMoves(map, board) {
         const moves = [];
         // 8个日字方向：[蹩腿偏移, 目标偏移]
